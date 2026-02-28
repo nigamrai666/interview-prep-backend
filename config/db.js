@@ -1,16 +1,14 @@
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
+const { Pool } = require("pg");
 
-// ❌ NO persistent disk on free tier
-// ✅ Use local file (will reset on redeploy)
-const dbPath = path.join(__dirname, "../database/interview_prep.db");
-
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error("SQLite error:", err);
-  } else {
-    console.log("SQLite connected (FREE tier, non-persistent)");
-  }
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-module.exports = db;
+pool.on("connect", () => {
+  console.log("PostgreSQL connected");
+});
+
+module.exports = pool;
